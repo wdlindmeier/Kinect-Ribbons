@@ -279,8 +279,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>7</integer>
-									<integer>5</integer>
+									<integer>12</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -302,7 +301,7 @@
 							<real>229</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>2 55 1436 823 0 0 1440 878 </string>
+						<string>1 51 1436 823 0 0 1440 878 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -332,16 +331,19 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>A9580A92132446530040DFF1</string>
+										<string>A9580C82132605F10040DFF1</string>
 										<key>history</key>
 										<array>
 											<string>A940A8A812FD266D0095B1B6</string>
 											<string>A940A8A912FD266D0095B1B6</string>
-											<string>A95809B4132432810040DFF1</string>
-											<string>A95809FE13243BC60040DFF1</string>
 											<string>A9580A56132441990040DFF1</string>
-											<string>A9580A6F132443340040DFF1</string>
-											<string>A9580A91132446410040DFF1</string>
+											<string>A9580BF21325F6C80040DFF1</string>
+											<string>A9580C5D132601320040DFF1</string>
+											<string>A9580C6B1326020B0040DFF1</string>
+											<string>A9580C6F132603C10040DFF1</string>
+											<string>A9580C70132603C10040DFF1</string>
+											<string>A9580C71132603C10040DFF1</string>
+											<string>A9580C72132603C10040DFF1</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -357,7 +359,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {1185, 777}}</string>
 								<key>RubberWindowFrame</key>
-								<string>2 55 1436 823 0 0 1440 878 </string>
+								<string>1 51 1436 823 0 0 1440 878 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -380,7 +382,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1185, 206}}</string>
+										<string>{{10, 27}, {1185, -27}}</string>
+										<key>RubberWindowFrame</key>
+										<string>1 51 1436 823 0 0 1440 878 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -434,9 +438,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {1185, -27}}</string>
-										<key>RubberWindowFrame</key>
-										<string>2 55 1436 823 0 0 1440 878 </string>
+										<string>{{0, 0}, {568, 405}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -464,11 +466,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>A95809BA1324328F0040DFF1</string>
+				<string>A9580BFF1325F6E90040DFF1</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>A95809BB1324328F0040DFF1</string>
+				<string>A9580C001325F6E90040DFF1</string>
 				<string>A940A8A612FD266D0095B1B6</string>
-				<string>A95809BC1324328F0040DFF1</string>
+				<string>A9580C011325F6E90040DFF1</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -612,13 +614,13 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>A95809BD1324328F0040DFF1</string>
+				<string>A9580C021325F6E90040DFF1</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>A95809BE1324328F0040DFF1</string>
-				<string>A95809BF1324328F0040DFF1</string>
-				<string>A95809C01324328F0040DFF1</string>
-				<string>A95809C11324328F0040DFF1</string>
+				<string>A9580C031325F6E90040DFF1</string>
+				<string>A9580C041325F6E90040DFF1</string>
+				<string>A9580C051325F6E90040DFF1</string>
+				<string>A9580C061325F6E90040DFF1</string>
 				<string>A940A8A612FD266D0095B1B6</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
@@ -653,12 +655,13 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>A95809C31324328F0040DFF1</string>
-		<string>A95809C41324328F0040DFF1</string>
+		<string>A9580C83132605F10040DFF1</string>
+		<string>A9580C071325F6E90040DFF1</string>
+		<string>A9580C081325F6E90040DFF1</string>
 		<string>/c++/Cinder/blocks/Cinder-Kinect/samples/Kinect-Ribbons/xcode/kinectBasic.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>2 55 1436 823 0 0 1440 878 </string>
+	<string>1 51 1436 823 0 0 1440 878 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

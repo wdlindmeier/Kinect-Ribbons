@@ -1,3 +1,4 @@
+#include <math.h>
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Texture.h"
@@ -6,18 +7,46 @@
 #include "cinder/Utilities.h"
 #include "cinder/Rand.h"
 #include "cinder/Channel.h"
-#include <math.h>
-#import "Ribbon.h"
+#include "cinder/params/Params.h"
+#include "cinder/audio/Output.h"
+#include "cinder/audio/Io.h"
+#include "cinder/CinderResources.h"
 
 #include "Kinect.h"
 #include "CinderOpenCV.h"
 
-#define MAX_RIBBONS	20
+#import "Ribbon.h"
+#import "Goal.h"
+
+#define RES_POP		CINDER_RESOURCE( ../resources/, pop.mp3, 128, MP3 )
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+bool pointFallsWithinShape(const Vec2i &testPoint, list<RibbonParticle *> *particles)
+{
+	int nVert = particles->size();
+	float vertx[nVert];
+	float verty[nVert];
+	int n=0;
+	for(list<RibbonParticle *>::iterator p = particles->begin(); p != particles->end(); ++p){
+		vertx[n] = (*p)->mPos.x;
+		verty[n] = (*p)->mPos.y;
+		n++;
+	}
+	
+	int testx = testPoint.x;
+	int testy = testPoint.y;
+	int i, j = 0;
+	bool c = false;
+	for (i = 0, j = nVert-1; i < nVert; j = i++) {
+		if (((verty[i]>testy) != (verty[j]>testy)) &&
+			(testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]))
+			c = !c;
+	}
+	return c;
+}
 
 class kinectBasicApp : public AppBasic {
   public:
@@ -29,34 +58,55 @@ class kinectBasicApp : public AppBasic {
 	void addNewRibbon();
 	void deleteRibbon();
 	
+	params::InterfaceGl	mParams;
+	
 	// Kinect
 	Kinect			mKinect;
 	gl::Texture		mColorTexture, mDepthTexture;		
 	float			mTilt;
 	
+	// Ribbons+Kinect
+	list<Vec2i>				mClosestPoints;
+	Vec2i					mClosestPoint;
+	bool					mIsTracing;
+	audio::SourceRef		mAudioSource;
+
 	// Ribbons
-	list<Vec2i>		mClosestPoints;
-	Vec2i			mClosestPoint;	
-	Ribbon			*mRibbon;
-//	list<Ribbon *>	mRibbons;	
-//	list<Ribbon *>	mCurrentRibbons;	
-	bool			mIsTracing;
-	
+	Ribbon                  *mRibbon;
+	list<Goal *>            mGoals;
+    int                     mMaxGoalAge;
+	int						mParticleFreq;	
+	int						mMinThreshRange;
+	int						mMaxThreshRange;
+	int						mScore;
+
 };
 
 void kinectBasicApp::prepareSettings( Settings* settings )
 {
+	mParams = params::InterfaceGl("Kinect Game", Vec2i(200,100));	
+	mParams.addParam( "mMinThreshRange", &mMinThreshRange, "min=0.0 max=255.0 step=1.0 keyIncr=2 keyDecr=1");
+	mParams.addParam( "mMaxThreshRange", &mMaxThreshRange, "min=0.0 max=255.0 step=1.0 keyIncr=0 keyDecr=9");
+	
 	settings->setWindowSize( 640, 480 );
 }
 
 void kinectBasicApp::setup()
 {
+	// Kinect
 	mKinect = Kinect( Kinect::Device() ); // the default Device implies the first Kinect connected
-	mTilt	= 5.0;
+	mTilt	= 15.0;
 	mKinect.setTilt(mTilt);
 	mClosestPoint = Vec2i::zero();
-	mRibbon	= NULL;
+	// Ribbon
 	mIsTracing = false;
+	mMaxGoalAge = 120;
+    mRibbon = NULL;
+	mParticleFreq = 5;
+	mMinThreshRange = 100;
+	mMaxThreshRange = 180;
+	mAudioSource = audio::load( loadResource( RES_POP ) );
+	mScore = 0;
 }
 
 void kinectBasicApp::keyDown( KeyEvent event)
@@ -67,20 +117,37 @@ void kinectBasicApp::keyDown( KeyEvent event)
 	}else if(event.getCode() == KeyEvent::KEY_DOWN){		
 		mTilt = math<float>::clamp(mTilt-1, -31.0, 31.0);		
 		mKinect.setTilt(mTilt);
-	}/*else if(event.getCode() == KeyEvent::KEY_SPACE){
-		addNewRibbon();
-	}*/
+	}
 }
 
 void kinectBasicApp::update()
 {	
-	if( mKinect.checkNewDepthFrame() ){
-		mDepthTexture = mKinect.getDepthImage();
 	
-		// Blur the depth image
-		cv::Mat input(toOcv(mKinect.getDepthImage())), blurred;
+	// Randomly add goals
+
+	if(Rand::randInt(1000) < mParticleFreq){
+		// Make sure the goals dont start near the edges
+        Goal *g = new Goal(Vec2i(Rand::randInt(100, 540), Rand::randInt(100, 380)), mMaxGoalAge);
+        mGoals.push_back(g);
+    }
+
+	// Analyze depth image
+	if( mKinect.checkNewDepthFrame() ){
+		
+		cv::Mat input(toOcv(mKinect.getDepthImage())), blurred, output;
+		cv::flip(input, input, 1);
+		
 		cv::blur(input, blurred, cv::Size(30.0, 30.0));
+		
 		Channel8u depthChannel = fromOcv(blurred);
+		
+		
+		// Threshold
+		// mDepthTexture = fromOcv(input);		
+		cv::threshold( toOcv(depthChannel), output, mMinThreshRange, mMaxThreshRange, CV_THRESH_BINARY);		
+		mDepthTexture = fromOcv(output);
+		
+		
 		
 		// Iterate over the depth image and find the lightest / highest point
 		Channel8u::Iter iter = depthChannel.getIter();
@@ -102,13 +169,13 @@ void kinectBasicApp::update()
 		
 		float distanceDelta = Vec2i(closestImagePoint - mClosestPoint).length();
 		
-		if(distanceDelta < 200 || mClosestPoint == Vec2i::zero()){
+		if(distanceDelta < 300 || mClosestPoint == Vec2i::zero()){
 			
 			// This just establishes an active range. 
 			// We don't want the ribbons to appear if the user is too close
 			// or too far.
 			bool wasTracing = mIsTracing;
-			mIsTracing = (int)maxValue < 180 && (int)maxValue > 50;
+			mIsTracing = (int)maxValue < mMaxThreshRange && (int)maxValue > mMinThreshRange;
 			if(!wasTracing && mIsTracing){
 				addNewRibbon();
 			}
@@ -118,7 +185,16 @@ void kinectBasicApp::update()
 			for(list<Vec2i>::iterator p = mClosestPoints.begin(); p != mClosestPoints.end(); ++p){
 				averagePoint += *p;
 			}
-			mClosestPoint = averagePoint / (mClosestPoints.size() + 1);
+			
+			Vec2i newClosestPoint = averagePoint / (mClosestPoints.size() + 1);
+			
+			// NOTE: We're only adding a particle if the closest point has moved more than 1px in either direction
+			bool shouldAddParticle = false;
+			if(abs(newClosestPoint.x - mClosestPoint.x) > 1 || abs(newClosestPoint.y - mClosestPoint.y) > 1){
+				shouldAddParticle = true;
+			}
+			
+			mClosestPoint = newClosestPoint;
 			
 			mClosestPoints.push_back(closestImagePoint);
 			// NOTE: Pushing the averaged point rather than the absolute closest makes it a lot smoother but not as accurate
@@ -128,13 +204,37 @@ void kinectBasicApp::update()
 				mClosestPoints.pop_front();
 			}
 			
-			if(mIsTracing){
+			if(mRibbon && shouldAddParticle && mIsTracing){
 				// Add closest position to the current ribbon
 				mRibbon->addParticle(mClosestPoint);
 			}
 			
+			
+			// NOTE: This must happen after addParticle and before ribbon.update()
+			if(mRibbon && mRibbon->mIntersectionParticles.size() > 0){
+				// There's an intersection. Do a point check on all of the goals
+				bool captured = false;
+				for(list<Goal *>::iterator g = mGoals.begin(); g != mGoals.end(); ++g){
+					if(!(*g)->mIsCaptured){
+						bool hitTest = pointFallsWithinShape((*g)->mPos, &(mRibbon->mIntersectionParticles));
+						if(hitTest){
+							captured = true;
+							(*g)->setIsCaptured();
+							// Increasing the frequency whenever one is caught
+							mParticleFreq += 1;
+							mMaxGoalAge -= 5;
+							mScore++;
+							audio::Output::play( mAudioSource );
+							// NOTE: Only capturing 1 at a time
+							break;
+						}            
+					}
+				}
+				mRibbon->mCapturedGoal = captured;
+			}			
+			
 		}else{
-			console() << "warning " << distanceDelta << "\n";
+			// console() << "warning " << distanceDelta << "\n";
 		}
 		
 	}
@@ -144,6 +244,16 @@ void kinectBasicApp::update()
 	}else if(mRibbon){
 		mRibbon->update();
 	}
+	
+	for(list<Goal *>::iterator g = mGoals.begin(); g != mGoals.end(); ++g){
+		
+		(*g)->update();
+        
+		if( (*g)->isDead() ){
+            delete (*g);
+            mGoals.remove((*g));
+        }
+	}    	
 
 }
 
@@ -163,25 +273,32 @@ void kinectBasicApp::deleteRibbon()
 	}
 }
 
-
 void kinectBasicApp::draw()
-{
-	gl::clear( Color( 0, 0, 0 ) ); 
-	gl::color(Color::white());
-	
+{	
 	gl::setMatricesWindow( getWindowWidth(), getWindowHeight() );
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	gl::color(Color(0.3, 0.6, 7.0));
+
 	if( mDepthTexture )
 		gl::draw( mDepthTexture );
-//	if( mColorTexture )
-//		gl::draw( mColorTexture, Vec2i( 640, 0 ) );
+	
+	gl::enableAlphaBlending(false);		
+	
+	for(list<Goal *>::iterator g = mGoals.begin(); g != mGoals.end(); ++g){
+		(*g)->draw();
+	}	
+	
+	gl::disableAlphaBlending();		
+	
 	if(mIsTracing){
-		if(mClosestPoint != Vec2i::zero()){
-			gl::color(Color(1.0, 0.0, 0.0));
-			gl::drawSolidCircle(mClosestPoint, 10);
-			gl::color(Color::white());
-		}
 		if(mRibbon) mRibbon->draw();
 	}
+	
+	gl::drawString(boost::lexical_cast<string>( mScore ), Vec2f(600, 20), Color::white(), Font("Arial", 32));
+	
+	// params::InterfaceGl::draw();
 }
 
 

@@ -20,8 +20,12 @@ public:
 	void draw();
 	void addParticle(const ci::Vec2i &position);
 	void addFinalParticle(const ci::Vec2i &position);
-
-	std::list<RibbonParticle *>	mParticles;
-	RibbonParticle *mParticleHead;
 	
+	std::list<RibbonParticle *>	mParticles;
+    std::list<RibbonParticle *>	mIntersectionParticles;
+	RibbonParticle *mParticleHead;
+    int		mAge;
+    int		mAgeConnectedAt;
+    int		mMaxParticles;
+	bool	mCapturedGoal;
 };

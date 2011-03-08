@@ -23,6 +23,7 @@
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		A95809F8132439780040DFF1 /* RibbonParticle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A95809F6132439780040DFF1 /* RibbonParticle.cpp */; };
 		A95809F9132439780040DFF1 /* Ribbon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A95809F7132439780040DFF1 /* Ribbon.cpp */; };
+		A9580BA11325E7EA0040DFF1 /* Goal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9580BA01325E7EA0040DFF1 /* Goal.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,8 @@
 		A95809F5132439780040DFF1 /* RibbonParticle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RibbonParticle.h; sourceTree = "<group>"; };
 		A95809F6132439780040DFF1 /* RibbonParticle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RibbonParticle.cpp; sourceTree = "<group>"; };
 		A95809F7132439780040DFF1 /* Ribbon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ribbon.cpp; sourceTree = "<group>"; };
+		A9580BA01325E7EA0040DFF1 /* Goal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Goal.cpp; sourceTree = "<group>"; };
+		A9580BC01325E7EE0040DFF1 /* Goal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Goal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,10 +80,11 @@
 		080E96DDFE201D6D7F000001 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				A95809F6132439780040DFF1 /* RibbonParticle.cpp */,
-				A95809F7132439780040DFF1 /* Ribbon.cpp */,
+				A9580BA01325E7EA0040DFF1 /* Goal.cpp */,
 				00312AD41298780D009DC098 /* Kinect.cpp */,
 				00BAE6590E7ED9C10018A608 /* kinectBasicApp.cpp */,
+				A95809F7132439780040DFF1 /* Ribbon.cpp */,
+				A95809F6132439780040DFF1 /* RibbonParticle.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -136,6 +140,7 @@
 		29B97315FDCFA39411CA2CEA /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				A9580BC01325E7EE0040DFF1 /* Goal.h */,
 				32CA4F630368D1EE00C91783 /* kinectBasic_Prefix.pch */,
 				A95809F4132439780040DFF1 /* Ribbon.h */,
 				A95809F5132439780040DFF1 /* RibbonParticle.h */,
@@ -226,6 +231,7 @@
 				00312AD51298780D009DC098 /* Kinect.cpp in Sources */,
 				A95809F8132439780040DFF1 /* RibbonParticle.cpp in Sources */,
 				A95809F9132439780040DFF1 /* Ribbon.cpp in Sources */,
+				A9580BA11325E7EA0040DFF1 /* Goal.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
